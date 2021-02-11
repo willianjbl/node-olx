@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 import { validationResult, matchedData } from 'express-validator';
 import validateRequest from '../validator/validateRequest.js';
 import User from '../model/User.js';
@@ -23,6 +24,7 @@ const AuthController = {
         });
         if (user) {
             res.json(validateRequest(null, 'E-mail já existe'));
+            return;
         }
 
         if (mongoose.Types.ObjectId.isValid(data.state)) {
@@ -36,7 +38,21 @@ const AuthController = {
             return;
         }
 
-        res.json(validateRequest(data));
+        const passwordHash = await bcrypt.hash(data.password, 10);
+        const payload = (Date.now() + Math.random()).toString();
+        const token = await bcrypt.hash(payload, 10);
+
+        const newUser = new User({
+            name: data.name,
+            email: data.email,
+            passwordHash,
+            token,
+            state: data.state
+        });
+
+        await newUser.save();
+
+        res.json(validateRequest(token));
     }
 };
 
