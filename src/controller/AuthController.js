@@ -10,7 +10,7 @@ const AuthController = {
     },
     signup: async (req, res) => {
         const errors = validationResult(req, res);
-        
+
         if (!errors.isEmpty()) {
             res.json(validateRequest(null, 'Os campos não foram preenchidos corretamente', errors.mapped()));
             return;

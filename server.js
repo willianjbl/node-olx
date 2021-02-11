@@ -30,5 +30,5 @@ server.use(express.static(path.join(__dirname, '/public')));
 server.use('/', router);
 
 server.listen(process.env.PORT, () => {
-    console.log(`Rodando em: ${process.env.BASE}`)
-})
+    console.log(`Rodando em: ${process.env.BASE}`);
+});
