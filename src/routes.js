@@ -5,18 +5,19 @@ import AdController from './controller/AdController.js';
 import AuthMiddleware from './middleware/AuthMiddleware.js';
 import validateRequest from './validator/validateRequest.js';
 import AuthValidator from './validator/AuthValidator.js';
+import UserValidator from './validator/UserValidator.js';
 const router = express.Router();
 
 router.get('/ping', (req, res) => {
     res.json(validateRequest({ pong: true }));
 });
 
-router.post('/user/signin', AuthController.signin);
+router.post('/user/signin', AuthValidator.signin, AuthController.signin);
 router.post('/user/signup', AuthValidator.signup, AuthController.signup);
 
 router.get('/states', UserController.getStates);
 router.get('/user/me', AuthMiddleware.private, UserController.info);
-router.put('/user/me', AuthMiddleware.private, UserController.editAction);
+router.put('/user/me', UserValidator.editAction, AuthMiddleware.private, UserController.editAction);
 
 router.get('/categories', AdController.getCategories);
 

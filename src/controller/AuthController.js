@@ -7,11 +7,40 @@ import State from '../model/State.js';
 
 const AuthController = {
     signin: async (req, res) => {
+        const errors = validationResult(req, res);
+        if (!errors.isEmpty()) {
+            res.json(validateRequest(null, 'Os campos não foram preenchidos corretamente', errors.mapped()));
+            return;
+        }
 
+        const data = matchedData(req);
+        const user = await User.findOne({ email: data.email });
+
+        if (!user) {
+            res.json(validateRequest(null, 'E-mail e/ou senha estão errados!'));
+            return;
+        }
+
+        const match = await bcrypt.compare(data.password, user.passwordHash);
+
+        if (!match) {
+            res.json(validateRequest(null, 'E-mail e/ou senha estão errados!'));
+            return;
+        }
+
+        const payload = (Date.now() + Math.random()).toString();
+        const token = await bcrypt.hash(payload, 10);
+
+        user.token = token;
+        await user.save();
+
+        res.json(validateRequest({
+            token,
+            email: data.email
+        }));
     },
     signup: async (req, res) => {
         const errors = validationResult(req, res);
-
         if (!errors.isEmpty()) {
             res.json(validateRequest(null, 'Os campos não foram preenchidos corretamente', errors.mapped()));
             return;

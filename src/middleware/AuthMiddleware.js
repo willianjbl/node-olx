@@ -12,18 +12,15 @@ const AuthMiddleware = {
         if (req.query.token) {
             token = req.query.token;
         }
-
         if (req.body.token) {
             token = req.body.token;
         }
-
         if (!token) {
             res.json(validateRequest(null, 'Access not allowed!'));
             return;
         }
 
         const user = await User.findOne({ token });
-
         if (!user) {
             res.json(validateRequest(null, 'Access not allowed!'));
             return;
